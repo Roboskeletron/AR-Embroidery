@@ -2,4 +2,6 @@
     <string name="app_name">AR Embroidery</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string translatable="false" name="searching_planes">Searching for surfaces...</string>
+    <string translatable="false" name="waiting_taps">Tap on a surface to place an object.</string>
 </resources>

@@ -15,8 +15,8 @@
  */
 package com.google.ar.core.examples.kotlin.common.helpers
 
-import android.app.Activity
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.ar.core.ArCoreApk
@@ -30,7 +30,7 @@ import ru.vsu.arembroidery.ar.helpers.CameraPermissionHelper
  * asks the user for required permissions if necessary.
  */
 class ARCoreSessionLifecycleHelper(
-  val activity: Activity,
+  val activity: FragmentActivity?,
   val features: Set<Session.Feature> = setOf()
 ) : DefaultLifecycleObserver {
   var installRequested = false
@@ -133,7 +133,7 @@ class ARCoreSessionLifecycleHelper(
         // Permission denied with checking "Do not ask again".
         CameraPermissionHelper.launchPermissionSettings(activity)
       }
-      activity.finish()
+      activity?.finish()
     }
   }
 }
