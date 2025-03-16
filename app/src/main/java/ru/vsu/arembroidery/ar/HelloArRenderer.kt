@@ -106,9 +106,9 @@ class HelloArRenderer(val fragment: ArFragment) :
   var lastPointCloudTimestamp: Long = 0
 
   // Virtual object (ARCore pawn)
-  lateinit var virtualObjectMesh: Mesh
-  lateinit var virtualObjectShader: Shader
-  lateinit var virtualObjectAlbedoTexture: Texture
+  lateinit var planeMesh: Mesh
+  lateinit var planeShader: Shader
+  lateinit var planeTexture: Texture
   lateinit var virtualObjectAlbedoInstantPlacementTexture: Texture
 
   private val wrappedAnchors = mutableListOf<WrappedAnchor>()
@@ -207,41 +207,23 @@ class HelloArRenderer(val fragment: ArFragment) :
         Mesh(render, Mesh.PrimitiveMode.POINTS, /*indexBuffer=*/ null, pointCloudVertexBuffers)
 
       // Virtual object to render (ARCore pawn)
-      virtualObjectAlbedoTexture =
+      planeTexture =
         Texture.createFromAsset(
           render,
-          "models/pawn_albedo.png",
+          "models/cross-stitch-1024.png", // "models/pawn_albedo.png",
           Texture.WrapMode.CLAMP_TO_EDGE,
           Texture.ColorFormat.SRGB
         )
-
-      virtualObjectAlbedoInstantPlacementTexture =
-        Texture.createFromAsset(
-          render,
-          "models/pawn_albedo_instant_placement.png",
-          Texture.WrapMode.CLAMP_TO_EDGE,
-          Texture.ColorFormat.SRGB
-        )
-
-      val virtualObjectPbrTexture =
-        Texture.createFromAsset(
-          render,
-          "models/pawn_roughness_metallic_ao.png",
-          Texture.WrapMode.CLAMP_TO_EDGE,
-          Texture.ColorFormat.LINEAR
-        )
-      virtualObjectMesh = Mesh.createFromAsset(render, "models/pawn.obj")
-      virtualObjectShader =
+//      virtualObjectMesh = Mesh.createFromAsset(render, "models/pawn.obj")
+      planeMesh = Mesh.createFromAsset(render, "models/plane.obj")
+      planeShader =
         Shader.createFromAssets(
             render,
-            "shaders/environmental_hdr.vert",
-            "shaders/environmental_hdr.frag",
-            mapOf("NUMBER_OF_MIPMAP_LEVELS" to cubemapFilter.numberOfMipmapLevels.toString())
+            "shaders/plane_s.vert",
+            "shaders/plane_s.frag",
+            null
           )
-          .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
-          .setTexture("u_RoughnessMetallicAmbientOcclusionTexture", virtualObjectPbrTexture)
-          .setTexture("u_Cubemap", cubemapFilter.filteredCubemapTexture)
-          .setTexture("u_DfgTexture", dfgTexture)
+          .setTexture("u_Texture", planeTexture)
     } catch (e: IOException) {
       Log.e(TAG, "Failed to read a required asset file", e)
       showError("Failed to read a required asset file: $e")
@@ -380,33 +362,29 @@ class HelloArRenderer(val fragment: ArFragment) :
     // -- Draw occluded virtual objects
 
     // Update lighting parameters in the shader
-    updateLightEstimation(frame.lightEstimate, viewMatrix)
+    // updateLightEstimation(frame.lightEstimate, viewMatrix)
 
     // Visualize anchors created by touch.
     render.clear(virtualSceneFramebuffer, 0f, 0f, 0f, 0f)
-    for ((anchor, trackable) in
+    for ((anchor, trackable, orientationMatrix) in
       wrappedAnchors.filter { it.anchor.trackingState == TrackingState.TRACKING }) {
       // Get the current pose of an Anchor in world space. The Anchor pose is updated
       // during calls to session.update() as ARCore refines its estimate of the world.
-      anchor.pose.toMatrix(modelMatrix, 0)
+      val anchorPose = anchor.pose
+      val anchorPosition = FloatArray(3)
+      anchorPose.getTranslation(anchorPosition, 0)
+
+      Matrix.setIdentityM(modelMatrix, 0)
+      Matrix.translateM(modelMatrix, 0, anchorPosition[0], anchorPosition[1], anchorPosition[2])
+      Matrix.multiplyMM(modelMatrix, 0, modelMatrix, 0, orientationMatrix, 0)
 
       // Calculate model/view/projection matrices
       Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
       Matrix.multiplyMM(modelViewProjectionMatrix, 0, projectionMatrix, 0, modelViewMatrix, 0)
 
       // Update shader properties and draw
-      virtualObjectShader.setMat4("u_ModelView", modelViewMatrix)
-      virtualObjectShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
-      val texture =
-        if ((trackable as? InstantPlacementPoint)?.trackingMethod ==
-            InstantPlacementPoint.TrackingMethod.SCREENSPACE_WITH_APPROXIMATE_DISTANCE
-        ) {
-          virtualObjectAlbedoInstantPlacementTexture
-        } else {
-          virtualObjectAlbedoTexture
-        }
-      virtualObjectShader.setTexture("u_AlbedoTexture", texture)
-      render.draw(virtualObjectMesh, virtualObjectShader, virtualSceneFramebuffer)
+      planeShader.setMat4("u_ModelViewProjection", modelViewProjectionMatrix)
+      render.draw(planeMesh, planeShader, virtualSceneFramebuffer)
     }
 
     // Compose the virtual scene with the background.
@@ -420,12 +398,12 @@ class HelloArRenderer(val fragment: ArFragment) :
   /** Update state based on the current frame's light estimation. */
   private fun updateLightEstimation(lightEstimate: LightEstimate, viewMatrix: FloatArray) {
     if (lightEstimate.state != LightEstimate.State.VALID) {
-      virtualObjectShader.setBool("u_LightEstimateIsValid", false)
+      planeShader.setBool("u_LightEstimateIsValid", false)
       return
     }
-    virtualObjectShader.setBool("u_LightEstimateIsValid", true)
+    planeShader.setBool("u_LightEstimateIsValid", true)
     Matrix.invertM(viewInverseMatrix, 0, viewMatrix, 0)
-    virtualObjectShader.setMat4("u_ViewInverse", viewInverseMatrix)
+    planeShader.setMat4("u_ViewInverse", viewInverseMatrix)
     updateMainLight(
       lightEstimate.environmentalHdrMainLightDirection,
       lightEstimate.environmentalHdrMainLightIntensity,
@@ -445,8 +423,8 @@ class HelloArRenderer(val fragment: ArFragment) :
     worldLightDirection[1] = direction[1]
     worldLightDirection[2] = direction[2]
     Matrix.multiplyMV(viewLightDirection, 0, viewMatrix, 0, worldLightDirection, 0)
-    virtualObjectShader.setVec4("u_ViewLightDirection", viewLightDirection)
-    virtualObjectShader.setVec3("u_LightIntensity", intensity)
+    planeShader.setVec4("u_ViewLightDirection", viewLightDirection)
+    planeShader.setVec3("u_LightIntensity", intensity)
   }
 
   private fun updateSphericalHarmonicsCoefficients(coefficients: FloatArray) {
@@ -471,7 +449,7 @@ class HelloArRenderer(val fragment: ArFragment) :
     for (i in 0 until 9 * 3) {
       sphericalHarmonicsCoefficients[i] = coefficients[i] * sphericalHarmonicFactors[i / 3]
     }
-    virtualObjectShader.setVec3Array(
+    planeShader.setVec3Array(
       "u_SphericalHarmonicsCoefficients",
       sphericalHarmonicsCoefficients
     )
@@ -513,11 +491,27 @@ class HelloArRenderer(val fragment: ArFragment) :
         wrappedAnchors.removeAt(0)
       }
 
+      val plane = firstHitResult.trackable as Plane
+      val planeNormal = FloatArray(3)
+      plane.centerPose.getTransformedAxis(2, 1.0f, planeNormal, 0)
+
+      val lookAtPoint = FloatArray(3)
+      for (i in 0..2) {
+        lookAtPoint[i] = planeNormal[i] * -1.0f
+      }
+
+      val orientationMatrix = FloatArray(16)
+      Matrix.setLookAtM(
+        orientationMatrix, 0,
+        0f, 0f, 0f,
+        lookAtPoint[0], lookAtPoint[1], lookAtPoint[2],
+        0f, 1f, 0f
+      )
+
       // Adding an Anchor tells ARCore that it should track this position in
       // space. This anchor is created on the Plane to place the 3D model
       // in the correct position relative both to the world and to the plane.
-      wrappedAnchors.add(WrappedAnchor(firstHitResult.createAnchor(), firstHitResult.trackable))
-
+      wrappedAnchors.add(WrappedAnchor(firstHitResult.createAnchor(), firstHitResult.trackable, orientationMatrix))
       // For devices that support the Depth API, shows a dialog to suggest enabling
       // depth-based occlusion. This dialog needs to be spawned on the UI thread.
 //      fragment.requireActivity().runOnUiThread { fragment.view.showOcclusionDialogIfNeeded() }
@@ -535,4 +529,5 @@ class HelloArRenderer(val fragment: ArFragment) :
 private data class WrappedAnchor(
   val anchor: Anchor,
   val trackable: Trackable,
+  val orientationMatrix: FloatArray
 )
