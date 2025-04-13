@@ -27,8 +27,15 @@ import com.google.ar.core.examples.java.ml.render.LabelRender
 import com.google.ar.core.examples.java.ml.render.PointCloudRender
 import com.google.ar.core.exceptions.CameraNotAvailableException
 import com.google.ar.core.exceptions.NotYetAvailableException
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.pose.Pose
+import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.PoseLandmark
+import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import ru.vsu.arembroidery.common.helpers.DisplayRotationHelper
 import ru.vsu.arembroidery.common.samplerender.SampleRender
 import ru.vsu.arembroidery.common.samplerender.arcore.BackgroundRenderer
@@ -52,10 +59,11 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
   val projectionMatrix = FloatArray(16)
   val viewProjectionMatrix = FloatArray(16)
 
-  val mlKitAnalyzer = MLKitObjectDetector(activity)
-  val gcpAnalyzer = GoogleCloudVisionDetector(activity)
+  val poseDetector = PoseDetection.getClient(PoseDetectorOptions.Builder()
+    .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
+    .build())
 
-  var currentAnalyzer: ObjectDetector = gcpAnalyzer
+  private var isDetectionInProcess = false
 
   override fun onResume(owner: LifecycleOwner) {
     displayRotationHelper.onResume()
@@ -120,8 +128,30 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
 
     // Frame.acquireCameraImage must be used on the GL thread.
     // Check if the button was pressed last frame to start processing the camera image.
+    if (isDetectionInProcess) {
+      return
+    }
+
     val cameraImage = frame.tryAcquireCameraImage()
 
+    if (cameraImage == null) {
+      return
+    }
+
+    isDetectionInProcess = true
+
+    val cameraId = session.cameraConfig.cameraId
+    val imageRotation = displayRotationHelper.getCameraSensorToDisplayRotation(cameraId)
+    val inputImage = InputImage.fromMediaImage(cameraImage, imageRotation)
+    cameraImage.close()
+
+    poseDetector.process(inputImage)
+      .addOnSuccessListener {
+        onDetectedPose(it, frame)
+      }
+      .addOnCompleteListener {
+        isDetectionInProcess = false
+      }
   }
 
   /**
@@ -139,6 +169,24 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
     activity.view.snackbarHelper.showError(activity, message)
 
   private fun hideSnackbar() = activity.view.snackbarHelper.hide(activity)
+
+  private fun onDetectedPose(pose: Pose, frame: Frame) {
+    val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
+    val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
+    val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
+    val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
+
+    tryGetAnchorPose(leftShoulder, rightHip)
+    tryGetAnchorPose(rightShoulder, leftHip)
+  }
+
+  private fun tryGetAnchorPose(shoulder: PoseLandmark?, hip: PoseLandmark?){
+    if (shoulder == null || hip == null) {
+      return
+    }
+
+
+  }
 
   /**
    * Temporary arrays to prevent allocations in [createAnchor].
@@ -164,5 +212,3 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
     return result.trackable.createAnchor(result.hitPose)
   }
 }
-
-data class ARLabeledAnchor(val anchor: Anchor, val label: String)
