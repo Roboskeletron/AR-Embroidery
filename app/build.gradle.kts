@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "ru.vsu.arembroidery"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "ru.vsu.arembroidery"
@@ -36,6 +36,9 @@ android {
 }
 
 dependencies {
+    implementation("com.google.mlkit:pose-detection:17.0.0")
+    implementation("com.google.ar:core:1.48.0")
+    implementation("de.javagl:obj:0.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
