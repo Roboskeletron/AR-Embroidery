@@ -15,13 +15,14 @@
  */
 package ru.vsu.arembroidery
 
+import android.graphics.PointF
 import android.opengl.Matrix
 import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.google.ar.core.Anchor
 import com.google.ar.core.Coordinates2d
 import com.google.ar.core.Frame
+import com.google.ar.core.HitResult
 import com.google.ar.core.TrackingState
 import com.google.ar.core.examples.java.ml.render.LabelRender
 import com.google.ar.core.examples.java.ml.render.PointCloudRender
@@ -33,9 +34,7 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import ru.vsu.arembroidery.common.helpers.DisplayRotationHelper
 import ru.vsu.arembroidery.common.samplerender.SampleRender
 import ru.vsu.arembroidery.common.samplerender.arcore.BackgroundRenderer
@@ -176,29 +175,40 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
     val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
     val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
 
-    tryGetAnchorPose(leftShoulder, rightHip)
-    tryGetAnchorPose(rightShoulder, leftHip)
-  }
+    var pose =  tryGetAnchorPose(frame, leftShoulder, rightHip)
 
-  private fun tryGetAnchorPose(shoulder: PoseLandmark?, hip: PoseLandmark?){
-    if (shoulder == null || hip == null) {
-      return
+    if (pose == null) {
+      pose = tryGetAnchorPose(frame, rightShoulder, leftHip)
     }
 
 
   }
 
+  private fun tryGetAnchorPose(frame: Frame, shoulder: PoseLandmark?, hip: PoseLandmark?) : com.google.ar.core.Pose? {
+    if (shoulder == null || hip == null) {
+      return null
+    }
+    shoulder.position
+    val shoulderHit = getHitResult(frame, shoulder.position)
+    val hipHit = getHitResult(frame, hip.position)
+
+    if (shoulderHit == null || hipHit == null) {
+      return null
+    }
+
+    return com.google.ar.core.Pose.makeInterpolated(shoulderHit.hitPose, hipHit.hitPose, 0.5f)
+  }
+
   /**
-   * Temporary arrays to prevent allocations in [createAnchor].
+   * Temporary arrays to prevent allocations in [getHitResult].
    */
   private val convertFloats = FloatArray(4)
   private val convertFloatsOut = FloatArray(4)
 
-  /** Create an anchor using (x, y) coordinates in the [Coordinates2d.IMAGE_PIXELS] coordinate space. */
-  fun createAnchor(xImage: Float, yImage: Float, frame: Frame): Anchor? {
-    // IMAGE_PIXELS -> VIEW
-    convertFloats[0] = xImage
-    convertFloats[1] = yImage
+  private fun getHitResult(frame: Frame, point: PointF) : HitResult? {
+    convertFloats[0] = point.x
+    convertFloats[1] = point.y
+
     frame.transformCoordinates2d(
       Coordinates2d.IMAGE_PIXELS,
       convertFloats,
@@ -206,9 +216,8 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
       convertFloatsOut
     )
 
-    // Conduct a hit test using the VIEW coordinates
     val hits = frame.hitTest(convertFloatsOut[0], convertFloatsOut[1])
-    val result = hits.getOrNull(0) ?: return null
-    return result.trackable.createAnchor(result.hitPose)
+
+    return hits.getOrNull(0)
   }
 }
