@@ -17,10 +17,10 @@
 package com.google.ar.core.examples.java.ml.render
 
 import com.google.ar.core.Pose
-import com.google.ar.core.examples.java.common.samplerender.Mesh
-import com.google.ar.core.examples.java.common.samplerender.SampleRender
-import com.google.ar.core.examples.java.common.samplerender.Shader
-import com.google.ar.core.examples.java.common.samplerender.VertexBuffer
+import ru.vsu.arembroidery.common.samplerender.Mesh
+import ru.vsu.arembroidery.common.samplerender.SampleRender
+import ru.vsu.arembroidery.common.samplerender.Shader
+import ru.vsu.arembroidery.common.samplerender.VertexBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 

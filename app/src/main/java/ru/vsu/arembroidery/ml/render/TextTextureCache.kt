@@ -21,9 +21,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.opengl.GLES30
-import com.google.ar.core.examples.java.common.samplerender.GLError
-import com.google.ar.core.examples.java.common.samplerender.SampleRender
-import com.google.ar.core.examples.java.common.samplerender.Texture
+import ru.vsu.arembroidery.common.samplerender.GLError
+import ru.vsu.arembroidery.common.samplerender.SampleRender
+import ru.vsu.arembroidery.common.samplerender.Texture
 import java.nio.ByteBuffer
 
 /**

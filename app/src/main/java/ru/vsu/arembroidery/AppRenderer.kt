@@ -23,6 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.ar.core.Coordinates2d
 import com.google.ar.core.Frame
 import com.google.ar.core.HitResult
+import com.google.ar.core.Session
 import com.google.ar.core.TrackingState
 import com.google.ar.core.examples.java.ml.render.LabelRender
 import com.google.ar.core.examples.java.ml.render.PointCloudRender
@@ -36,7 +37,10 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import ru.vsu.arembroidery.common.helpers.DisplayRotationHelper
+import ru.vsu.arembroidery.common.samplerender.Mesh
 import ru.vsu.arembroidery.common.samplerender.SampleRender
+import ru.vsu.arembroidery.common.samplerender.Shader
+import ru.vsu.arembroidery.common.samplerender.Texture
 import ru.vsu.arembroidery.common.samplerender.arcore.BackgroundRenderer
 
 /**
@@ -44,7 +48,7 @@ import ru.vsu.arembroidery.common.samplerender.arcore.BackgroundRenderer
  */
 class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, SampleRender.Renderer, CoroutineScope by MainScope() {
   companion object {
-    val TAG = "HelloArRenderer"
+    val TAG = "AppRenderer"
   }
 
   lateinit var view: MainActivityView
@@ -54,13 +58,19 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
   val pointCloudRender = PointCloudRender()
   val labelRenderer = LabelRender()
 
+  val modelMatrix = FloatArray(16)
   val viewMatrix = FloatArray(16)
   val projectionMatrix = FloatArray(16)
+  val modelViewMatrix = FloatArray(16)
   val viewProjectionMatrix = FloatArray(16)
 
   val poseDetector = PoseDetection.getClient(PoseDetectorOptions.Builder()
     .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
     .build())
+
+  private lateinit var planeTexture: Texture
+  private lateinit var planeMesh: Mesh
+  private lateinit var planeShader: Shader
 
   private var isDetectionInProcess = false
 
@@ -84,11 +94,31 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
     }
     pointCloudRender.onSurfaceCreated(render)
     labelRenderer.onSurfaceCreated(render)
+
+    planeTexture =
+      Texture.createFromAsset(
+        render,
+        "models/pawn_albedo.png",
+        Texture.WrapMode.CLAMP_TO_EDGE,
+        Texture.ColorFormat.SRGB
+      )
+
+    planeMesh = Mesh.createFromAsset(render, "models/pawn.obj")
+
+    planeShader =
+      Shader.createFromAssets(
+        render,
+        "shaders/plane_s.vert",
+        "shaders/plane_s.frag",
+        null
+      ).setTexture("u_Texture", planeTexture)
   }
 
   override fun onSurfaceChanged(render: SampleRender?, width: Int, height: Int) {
     displayRotationHelper.onSurfaceChanged(width, height)
   }
+
+  private val anchorPosition = FloatArray(3)
 
   override fun onDrawFrame(render: SampleRender) {
     val session = activity.arCoreSessionHelper.sessionCache ?: return
@@ -125,11 +155,18 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
       pointCloudRender.drawPointCloud(render, pointCloud, viewProjectionMatrix)
     }
 
+    session.allAnchors.firstOrNull()?.let {
+      Log.d(TAG, "Rendering model for anchor")
+
+      val anchorNode = AnchorNode(it)
+    }
+
     // Frame.acquireCameraImage must be used on the GL thread.
     // Check if the button was pressed last frame to start processing the camera image.
     if (isDetectionInProcess) {
       return
     }
+    Log.d(TAG, "Initiating pose detection")
 
     val cameraImage = frame.tryAcquireCameraImage()
 
@@ -142,13 +179,18 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
     val cameraId = session.cameraConfig.cameraId
     val imageRotation = displayRotationHelper.getCameraSensorToDisplayRotation(cameraId)
     val inputImage = InputImage.fromMediaImage(cameraImage, imageRotation)
-    cameraImage.close()
 
     poseDetector.process(inputImage)
       .addOnSuccessListener {
-        onDetectedPose(it, frame)
+        Log.d(TAG, "Pose detected successfully")
+        onDetectedPose(it, frame, session)
+      }
+      .addOnFailureListener {
+        Log.e(TAG, "Pose detection failed", it)
       }
       .addOnCompleteListener {
+        Log.d(TAG, "Pose detection finished")
+        cameraImage.close()
         isDetectionInProcess = false
       }
   }
@@ -169,7 +211,7 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
 
   private fun hideSnackbar() = activity.view.snackbarHelper.hide(activity)
 
-  private fun onDetectedPose(pose: Pose, frame: Frame) {
+  private fun onDetectedPose(pose: Pose, frame: Frame, session: Session) {
     val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
     val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
     val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
@@ -181,7 +223,12 @@ class AppRenderer(val activity: MainActivity) : DefaultLifecycleObserver, Sample
       pose = tryGetAnchorPose(frame, rightShoulder, leftHip)
     }
 
+    session.allAnchors.forEach { it.detach() }
 
+    pose?.let {
+      session.createAnchor(it)
+      
+    }
   }
 
   private fun tryGetAnchorPose(frame: Frame, shoulder: PoseLandmark?, hip: PoseLandmark?) : com.google.ar.core.Pose? {
