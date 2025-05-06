@@ -17,38 +17,28 @@
 package ru.vsu.arembroidery
 
 import android.view.View
+import androidx.lifecycle.LifecycleOwner
 import ru.vsu.arembroidery.common.helpers.SnackbarHelper
-import ru.vsu.arembroidery.common.samplerender.SampleRender
-import kotlin.apply
 
 /**
  * Wraps [R.layout.activity_main] and controls lifecycle operations for [GLSurfaceView].
  */
-class MainActivityView(val activity: MainActivity, renderer: AppRenderer) :
+class MainActivityView(activity: MainActivity, val renderer: AppRenderer) :
   androidx.lifecycle.DefaultLifecycleObserver {
   val root = View.inflate(
     activity,
     R.layout.activity_main,
     null
   )
-  val surfaceView = root.findViewById<android.opengl.GLSurfaceView>(R.id.surfaceview).apply {
-    SampleRender(
-      this,
-      renderer,
-      activity.assets
-    )
-  }
+
   val snackbarHelper = SnackbarHelper().apply {
     setParentView(root.findViewById(R.id.coordinatorLayout))
     setMaxLines(6)
   }
 
-  override fun onResume(owner: androidx.lifecycle.LifecycleOwner) {
-    surfaceView.onResume()
-  }
-
-  override fun onPause(owner: androidx.lifecycle.LifecycleOwner) {
-    surfaceView.onPause()
+  override fun onCreate(owner: LifecycleOwner) {
+    super.onCreate(owner)
+    renderer.startRendering()
   }
 
   fun post(action: java.lang.Runnable) = root.post(action)

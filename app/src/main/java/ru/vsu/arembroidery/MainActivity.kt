@@ -8,9 +8,10 @@ import com.google.ar.core.CameraConfig
 import com.google.ar.core.CameraConfigFilter
 import com.google.ar.core.Config
 import com.google.ar.core.exceptions.*
+import io.github.sceneview.ar.ARSceneView
 import ru.vsu.arembroidery.common.helpers.FullScreenHelper
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
     companion object {
         private const val TAG = "MainActivity"
     }
@@ -57,13 +58,11 @@ class MainActivity : AppCompatActivity() {
                 .thenByDescending { it.imageSize.height }
             session.cameraConfig = configs.sortedWith(sort)[0]
         }
-        lifecycle.addObserver(arCoreSessionHelper)
 
-        renderer = AppRenderer(this)
+        renderer = AppRenderer(this, findViewById<ARSceneView>(R.id.arSceneView))
         lifecycle.addObserver(renderer)
         view = MainActivityView(this, renderer)
         setContentView(view.root)
-        renderer.bindView(view)
         lifecycle.addObserver(view)
     }
 

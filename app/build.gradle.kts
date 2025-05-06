@@ -27,19 +27,26 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 }
 
 dependencies {
-    implementation("com.google.mlkit:pose-detection:17.0.0")
-    implementation("com.google.ar:core:1.48.0")
-    implementation("de.javagl:obj:0.4.0")
+    implementation(libs.pose.detection)
+//    implementation("com.google.ar:core:1.48.0")
+//    implementation("de.javagl:obj:0.4.0")
+//    implementation("io.github.sceneview:sceneview:2.2.1")
+    implementation(libs.arsceneview)
 
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
