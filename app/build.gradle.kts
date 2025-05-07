@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "ru.vsu.arembroidery"
         minSdk = 33
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -31,7 +31,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     buildFeatures {
@@ -44,7 +44,7 @@ dependencies {
 //    implementation("com.google.ar:core:1.48.0")
 //    implementation("de.javagl:obj:0.4.0")
 //    implementation("io.github.sceneview:sceneview:2.2.1")
-    implementation(libs.arsceneview)
+    implementation("io.github.sceneview:arsceneview:2.2.1")
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
