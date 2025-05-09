@@ -16,8 +16,6 @@ class PoseImageAnalyzer(private val poseDetector: PoseDetector) : ImageAnalysis.
 
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
-        Log.d(TAG, "Analyzing image")
-
         val mediaImage = imageProxy.image
 
         if (mediaImage == null) {

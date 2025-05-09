@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AR Embroidery"
 include(":app")
- 
+include(":opencv")

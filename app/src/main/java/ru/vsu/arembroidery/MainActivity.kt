@@ -3,6 +3,7 @@ package ru.vsu.arembroidery
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import org.opencv.android.OpenCVLoader
 import ru.vsu.arembroidery.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +32,16 @@ class MainActivity : AppCompatActivity() {
 
         if (!allPermissionsGranted()){
             requestPermissions()
+        }
+
+        if (OpenCVLoader.initLocal()) {
+            Log.i(TAG, "OpenCV loaded successfully")
+        } else {
+            Log.e(TAG, "OpenCV initialization failed!")
+            Toast
+                .makeText(this, "OpenCV initialization failed!", Toast.LENGTH_LONG)
+                .show()
+            finish()
         }
     }
 
