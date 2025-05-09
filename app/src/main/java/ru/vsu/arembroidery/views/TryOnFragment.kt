@@ -10,7 +10,11 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 import ru.vsu.arembroidery.databinding.FragmentTryOnBinding
+import kotlin.getValue
 
 class TryOnFragment : Fragment() {
 
@@ -19,6 +23,8 @@ class TryOnFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentTryOnBinding
+
+    private val viewModel by viewModels<TryOnFragmentVM>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,7 +56,7 @@ class TryOnFragment : Fragment() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview)
+                    this, cameraSelector, preview, viewModel.imageAnalyzer)
 
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
