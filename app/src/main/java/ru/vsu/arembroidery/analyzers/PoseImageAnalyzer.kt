@@ -9,7 +9,10 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetector
 
-class PoseImageAnalyzer(private val poseDetector: PoseDetector) : ImageAnalysis.Analyzer {
+class PoseImageAnalyzer(
+    private val poseDetector: PoseDetector,
+    private val  onPoseDetected: (pose: Pose, width: Int, height: Int) -> Unit
+) : ImageAnalysis.Analyzer {
     companion object {
         private  const val TAG = "PoseImageAnalyzer"
     }
@@ -27,8 +30,7 @@ class PoseImageAnalyzer(private val poseDetector: PoseDetector) : ImageAnalysis.
 
         poseDetector.process(image)
             .addOnSuccessListener { pose ->
-                Log.d(TAG, "Pose detected")
-                onPoseDetected(pose)
+                onPoseDetected(pose, imageProxy.width, imageProxy.height)
             }
             .addOnFailureListener { tr ->
                 Log.e(TAG, "Failed to detect pose", tr)
@@ -36,9 +38,5 @@ class PoseImageAnalyzer(private val poseDetector: PoseDetector) : ImageAnalysis.
             .addOnCompleteListener {
                 imageProxy.close()
             }
-    }
-
-    private fun onPoseDetected(pose: Pose) {
-
     }
 }
