@@ -8,18 +8,13 @@
 
     <androidx.camera.view.PreviewView
         android:id="@+id/cameraPreview"
-        android:layout_width="1080px"
-        android:layout_height="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="9:16"
-        app:scaleType="fitCenter"
-        android:layout_margin="12dp"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"/>
 
     <ImageView
         android:id="@+id/embroideryOverlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

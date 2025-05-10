@@ -2,12 +2,14 @@ package ru.vsu.arembroidery.views
 
 import androidx.lifecycle.ViewModel
 import com.google.mlkit.vision.pose.PoseDetection
+import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 
 class TryOnFragmentVM : ViewModel() {
     val poseDetector = PoseDetection.getClient(
         PoseDetectorOptions.Builder()
             .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
+            .setPreferredHardwareConfigs(PoseDetectorOptions.CPU_GPU)
             .build()
     )
 

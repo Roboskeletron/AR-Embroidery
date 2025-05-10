@@ -23,14 +23,17 @@ class PoseDebugOverlay(
         color = Color.YELLOW
     }
 
+    var offsetX = 0f
+    var offsetY = 0f
+
 
     override fun draw(canvas: Canvas) {
         pose.allPoseLandmarks.run {
             transformPoint(this)
         }.forEach { point ->
             canvas.drawCircle(
-                point.x,
-                point.y,
+                point.x + offsetX,
+                point.y + offsetY,
                 10f,
                 pointPaint
             )
