@@ -22,6 +22,7 @@ androidx-camera-camera2 = { module = "androidx.camera:camera-camera2" }
 androidx-camera-core = { module = "androidx.camera:camera-core" }
 androidx-camera-extensions = { module = "androidx.camera:camera-extensions" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle" }
+androidx-camera-mlkit-vision = { module = "androidx.camera:camera-mlkit-vision" }
 androidx-camera-video = { module = "androidx.camera:camera-video" }
 androidx-camera-view = { module = "androidx.camera:camera-view" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

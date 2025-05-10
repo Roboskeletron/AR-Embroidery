@@ -1,27 +1,46 @@
 package ru.vsu.arembroidery.views
 
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.os.Bundle
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_SENSOR
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.mlkit.vision.MlKitAnalyzer
+import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.PreviewView
+import androidx.camera.view.TransformExperimental
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.mlkit.vision.pose.Pose
-import com.google.mlkit.vision.pose.PoseLandmark
 import org.opencv.android.Utils
 import org.opencv.core.CvType
 import org.opencv.core.Mat
+import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import ru.vsu.arembroidery.R
 import ru.vsu.arembroidery.databinding.FragmentTryOnBinding
+import ru.vsu.arembroidery.domain.Body
+import ru.vsu.arembroidery.domain.PoseDebugOverlay
+import ru.vsu.arembroidery.domain.createBodyOrNull
 
 class TryOnFragment : Fragment() {
 
@@ -37,30 +56,13 @@ class TryOnFragment : Fragment() {
     private lateinit var srcPoints: Mat
     private lateinit var dstPoints: Mat
     private lateinit var embroideryMat: Mat
+    private var debugMat: Mat? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentTryOnBinding.inflate(inflater, container, false)
-
-        viewModel.pose.observe(viewLifecycleOwner) { pose ->
-            pose?.let {
-                updateEmbroideryOverlay(
-                    it,
-                    viewModel.imageDimensions.value!!.first,
-                    viewModel.imageDimensions.value!!.second
-                )
-            }
-        }
-
-        viewModel.imageDimensions.observe (viewLifecycleOwner) {
-            warpedEmbroideryMat?.release()
-            if (it.first != warpedEmbroideryMat?.cols() ||
-                it.second != warpedEmbroideryMat?.rows()) {
-                warpedEmbroideryMat = Mat(it.second, it.first, CvType.CV_8UC4, Scalar(0.0, 0.0, 0.0, 0.0))
-            }
-        }
 
         return binding.root
     }
@@ -78,55 +80,61 @@ class TryOnFragment : Fragment() {
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.Companion.getInstance(requireContext())
-
-        cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.surfaceProvider = binding.cameraPreview.surfaceProvider
+        binding.cameraPreview.controller = LifecycleCameraController(requireContext()).apply {
+            setImageAnalysisAnalyzer(
+                ContextCompat.getMainExecutor(requireContext()),
+                MlKitAnalyzer(
+                    listOf(viewModel.poseDetector),
+                    COORDINATE_SYSTEM_VIEW_REFERENCED,
+                    ContextCompat.getMainExecutor(requireContext())
+                ) { result ->
+                    result.getValue(viewModel.poseDetector)?.let { pose ->
+                        updateEmbroideryOverlay(pose)
+                    }
                 }
+            )
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            bindToLifecycle(viewLifecycleOwner)
 
-            try {
-                // Unbind use cases before rebinding
-                cameraProvider.unbindAll()
-
-                // Bind use cases to camera
-                cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, viewModel.imageAnalyzer)
-
-            } catch(exc: Exception) {
-                Log.e(TAG, "Use case binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(requireContext()))
+            imageAnalysisResolutionSelector = ResolutionSelector.Builder()
+                .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                .build()
+            previewResolutionSelector = ResolutionSelector.Builder()
+                .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                .build()
+        }
     }
 
-    private fun updateEmbroideryOverlay(pose: Pose, width: Int, height: Int){
-        val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
-        val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
-        val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
-        val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
-
-        if (leftShoulder == null || rightShoulder == null || leftHip == null || rightHip == null) {
-            binding.embroideryOverlay.visibility = View.GONE
-            return
+    private fun updateEmbroideryOverlay(pose: Pose){
+        binding.cameraPreview.apply {
+            overlay.clear()
+            overlay.add(PoseDebugOverlay(pose))
         }
+//        val body = createBodyOrNull(pose)?.run {
+//            updateEmbroideryPosition()
+//            drawDebugMarkers()
+//        }
+//
+//        binding.embroideryOverlay.visibility = if (body == null) View.GONE else View.VISIBLE
+    }
 
-        binding.embroideryOverlay.visibility = View.VISIBLE
-
+    private fun Body.updateEmbroideryPosition() {
         srcPoints.put(0, 0, 0.0, 0.0)
         srcPoints.put(2, 0, 0.0, embroideryMat.height().toDouble())
         srcPoints.put(1, 0, embroideryMat.width().toDouble(), 0.0)
         srcPoints.put(3, 0, embroideryMat.width().toDouble(), embroideryMat.height().toDouble())
 
-        dstPoints.put(0, 0, leftShoulder.position.x.toDouble(), leftShoulder.position.y.toDouble())
-        dstPoints.put(1, 0, rightShoulder.position.x.toDouble(), rightShoulder.position.y.toDouble())
-        dstPoints.put(2, 0, leftHip.position.x.toDouble(), leftHip.position.y.toDouble())
-        dstPoints.put(3, 0, rightHip.position.x.toDouble(), rightHip.position.y.toDouble())
+        val offsetDstPoints = getScaledAndOffsetBodyPoints(
+            viewModel.embroideryWidth,
+            viewModel.embroideryHeight,
+            viewModel.embroideryCenterOffsetX,
+            viewModel.embroideryCenterOffsetY
+        )
+
+        dstPoints.put(0, 0, offsetDstPoints[0].x.toDouble(), offsetDstPoints[0].y.toDouble())
+        dstPoints.put(1, 0, offsetDstPoints[1].x.toDouble(), offsetDstPoints[1].y.toDouble())
+        dstPoints.put(2, 0, offsetDstPoints[3].x.toDouble(), offsetDstPoints[3].y.toDouble())
+        dstPoints.put(3, 0, offsetDstPoints[2].x.toDouble(), offsetDstPoints[2].y.toDouble())
 
         val transformMatrix = Imgproc.getPerspectiveTransform(srcPoints, dstPoints)
 
@@ -135,16 +143,17 @@ class TryOnFragment : Fragment() {
             warpedEmbroideryMat,
             transformMatrix,
             warpedEmbroideryMat!!.size(),
-            Imgproc.INTER_LINEAR
+            Imgproc.INTER_CUBIC
         )
 
-        val resultBitmap = createBitmap(width, height)
+        val resultBitmap = createBitmap(binding.cameraPreview.width, binding.cameraPreview.height)
         Utils.matToBitmap(warpedEmbroideryMat, resultBitmap)
 
         binding.embroideryOverlay.setImageBitmap(resultBitmap)
 
         transformMatrix.release()
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
