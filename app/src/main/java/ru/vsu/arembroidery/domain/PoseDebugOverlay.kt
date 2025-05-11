@@ -48,5 +48,6 @@ class PoseDebugOverlay(
         pointPaint.colorFilter = colorFilter
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 }
