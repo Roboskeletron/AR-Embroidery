@@ -2,7 +2,6 @@ package ru.vsu.arembroidery.views
 
 import androidx.lifecycle.ViewModel
 import com.google.mlkit.vision.pose.PoseDetection
-import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
 
 class TryOnFragmentVM : ViewModel() {
@@ -13,10 +12,9 @@ class TryOnFragmentVM : ViewModel() {
             .build()
     )
 
-    var embroideryCenterOffsetX = 0f
-    var embroideryCenterOffsetY = 0f
-    var embroideryWidth = 300f
-    var embroideryHeight = 300f
+    var embroideryOffsetX = 0.0
+    var embroideryOffsetY = 0.0
+    var embroideryScale = 0.5
 
     override fun onCleared() {
         super.onCleared()

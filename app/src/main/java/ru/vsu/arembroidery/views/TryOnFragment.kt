@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 import org.opencv.android.Utils
+import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
@@ -147,15 +148,48 @@ class TryOnFragment : Fragment() {
             put(3, 0, rightHip.x.toDouble(), rightHip.y.toDouble())
         }
 
-        val perspectiveTransform = Imgproc.getPerspectiveTransform(srcPoints, dstPoints)
+        val w = previewView.width.toDouble()
+        val h = previewView.height.toDouble()
+        val cX = w/2f
+        val cY = h/2f
 
+        val s = viewModel.embroideryScale
+        val dx = viewModel.embroideryOffsetX
+        val dy = viewModel.embroideryOffsetY
 
+        val t1 = Mat.eye(3,3,CvType.CV_64F).apply {
+            put(0,2,-cX); put(1,2,-cY)
+        }
+
+        val mS = Mat.eye(3,3,CvType.CV_64F).apply {
+            put(0,0,s); put(1,1,s)
+        }
+
+        val t2 = Mat.eye(3,3,CvType.CV_64F).apply {
+            put(0,2,cX); put(1,2,cY)
+        }
+
+        val mPersp = Imgproc.getPerspectiveTransform(srcPoints, dstPoints)
+
+        val tOffset = Mat.eye(3,3,CvType.CV_64F).apply {
+            put(0,2,dx); put(1,2,dy)
+        }
+
+        val tmp1 = Mat()
+        Core.gemm(mPersp, t2,    1.0, Mat(), 0.0, tmp1)   // M_persp * T2
+        val tmp2 = Mat()
+        Core.gemm(tmp1,  mS,       1.0, Mat(), 0.0, tmp2)   // (M_persp*T2) * S
+        val tmp3 = Mat()
+        Core.gemm(tmp2,  t1,      1.0, Mat(), 0.0, tmp3)   // ((M_persp*T2)*S) * T1
+        val tmp4 = Mat()
+        Core.gemm(tOffset, tmp3, 1.0, Mat(), 0.0, tmp4)   // T_offset * (((...) * T1))
 
         Imgproc.warpPerspective(
             embroideryMat,
             warpedEmbroideryMat,
-            perspectiveTransform,
-            Size(previewView.width.toDouble(), previewView.height.toDouble())
+            tmp4,
+            Size(previewView.width.toDouble(), previewView.height.toDouble()),
+            Imgproc.INTER_LINEAR
         )
 
         return createBitmap(
