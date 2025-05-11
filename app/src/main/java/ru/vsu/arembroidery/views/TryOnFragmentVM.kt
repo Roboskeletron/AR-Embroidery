@@ -1,5 +1,6 @@
 package ru.vsu.arembroidery.views
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
@@ -12,9 +13,15 @@ class TryOnFragmentVM : ViewModel() {
             .build()
     )
 
-    var embroideryOffsetX = 0.0
-    var embroideryOffsetY = 0.0
-    var embroideryScale = 0.5
+    val embroideryOffsetX = MutableLiveData(0f)
+    val embroideryOffsetY = MutableLiveData(0f)
+    var embroideryScale = MutableLiveData(50f)
+
+    var offsetX = 0.0
+    var offsetY = 0.0
+    var scale = 0.5
+
+    var alignmentOffsetX = 0.0
 
     override fun onCleared() {
         super.onCleared()

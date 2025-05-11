@@ -1,117 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".views.TryOnFragment">
+<layout>
 
-    <!-- Preview Fragment Camera View -->
-    <androidx.camera.view.PreviewView
-        android:id="@+id/cameraPreview"
+    <data>
+        <variable
+            name="viewModel"
+            type="ru.vsu.arembroidery.views.TryOnFragmentVM" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
+        tools:context=".views.TryOnFragment">
 
-    <!-- Controls Panel -->
-    <FrameLayout
-        android:id="@+id/bottomSheet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="80dp">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        <!-- Preview Fragment Camera View -->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/alignmentToggleGroup"
+        <!-- Controls Panel -->
+        <FrameLayout
+            android:id="@+id/bottomSheet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:layout_gravity="center">
+            app:behavior_hideable="false"
+            app:behavior_peekHeight="65dp"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/alignLeft"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-                app:icon="@drawable/ic_align_left"
-                app:layout_constraintStart_toStartOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/alignCenter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-                app:icon="@drawable/ic_align_center"
-                android:checked="true" />
+                <com.google.android.material.button.MaterialButtonGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/alignRight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-                app:icon="@drawable/ic_align_right" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/alignLeft"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        app:icon="@drawable/ic_align_left"
+                        app:iconGravity="textStart" />
 
-        <!-- Scale Slider -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/scaleLabel"
-            style="@style/TextAppearance.Material3.BodyMedium"
-            android:text="Scale"
-            android:textColor="?attr/colorSurfaceVariant" />
-        <com.google.android.material.slider.Slider
-            android:id="@+id/scaleSlider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:valueFrom="0"
-            android:valueTo="200"
-            android:value="100"
-            app:labelBehavior="floating" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/alignCenter"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        app:icon="@drawable/ic_align_center"
+                        app:iconGravity="textStart" />
 
-        <!-- Offset X Slider -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/TextAppearance.Material3.BodyMedium"
-            android:text="Offset X"
-            android:layout_marginTop="8dp"
-            android:textColor="?attr/colorSurfaceVariant" />
-        <com.google.android.material.slider.Slider
-            android:id="@+id/offsetXSlider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:valueFrom="0"
-            android:valueTo="100"
-            android:value="50"
-            app:labelBehavior="floating" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/alignRight"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        app:icon="@drawable/ic_align_right"
+                        app:iconGravity="textStart" />
+                </com.google.android.material.button.MaterialButtonGroup>
 
-        <!-- Offset Y Slider -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/TextAppearance.Material3.BodyMedium"
-            android:text="Offset Y"
-            android:textColor="?attr/colorSurfaceVariant"
-            android:layout_marginTop="8dp" />
-        <com.google.android.material.slider.Slider
-            android:id="@+id/offsetYSlider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:valueFrom="0"
-            android:valueTo="100"
-            android:value="50"
-            app:labelBehavior="floating" />
+                <!-- Scale Slider -->
+                <TextView
+                    android:id="@+id/scaleLabel"
+                    style="@style/TextAppearance.Material3.BodyMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scale"
+                    android:textColor="?attr/colorSurfaceVariant" />
 
-    </LinearLayout>
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/scaleSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:value="@{viewModel.embroideryScale}"
+                    android:valueFrom="0"
+                    android:valueTo="100"
+                    app:labelBehavior="floating" />
 
-    </FrameLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <!-- Offset X Slider -->
+                <TextView
+                    style="@style/TextAppearance.Material3.BodyMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Offset X"
+                    android:textColor="?attr/colorSurfaceVariant" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/offsetXSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:value="@{viewModel.embroideryOffsetX}"
+                    android:valueFrom="-100"
+                    android:valueTo="100"
+                    app:labelBehavior="floating" />
+
+                <!-- Offset Y Slider -->
+                <TextView
+                    style="@style/TextAppearance.Material3.BodyMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Offset Y"
+                    android:textColor="?attr/colorSurfaceVariant" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/offsetYSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:value="@{viewModel.embroideryOffsetY}"
+                    android:valueFrom="-100"
+                    android:valueTo="100"
+                    app:labelBehavior="floating" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>

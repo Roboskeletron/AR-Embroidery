@@ -27,6 +27,7 @@ import ru.vsu.arembroidery.databinding.FragmentTryOnBinding
 import ru.vsu.arembroidery.domain.EmbroideryOverlay
 import ru.vsu.arembroidery.domain.PoseDebugOverlay
 import ru.vsu.arembroidery.domain.PoseDetectionAnalyzer
+import kotlin.math.abs
 
 class TryOnFragment : Fragment() {
 
@@ -48,6 +49,40 @@ class TryOnFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentTryOnBinding.inflate(inflater, container, false)
+
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = viewModel
+
+        binding.alignCenter.setOnClickListener {
+            viewModel.embroideryOffsetX.value = 0f
+            viewModel.embroideryOffsetY.value = 0f
+        }
+
+        binding.alignLeft.setOnClickListener {
+            viewModel.embroideryOffsetX.value = -viewModel.alignmentOffsetX.toFloat()
+            viewModel.embroideryOffsetY.value = 0f
+        }
+
+        binding.alignRight.setOnClickListener {
+            viewModel.embroideryOffsetX.value = viewModel.alignmentOffsetX.toFloat()
+            viewModel.embroideryOffsetY.value = 0f
+        }
+
+        binding.scaleSlider.addOnChangeListener { _, value, _ ->
+            viewModel.scale = value / 100.0
+        }
+
+        binding.offsetXSlider.apply {
+            addOnChangeListener { _, value, _ ->
+                viewModel.offsetX = value.toDouble()
+            }
+        }
+
+        binding.offsetYSlider.apply {
+            addOnChangeListener { _, value, _ ->
+                viewModel.offsetY = -value.toDouble()
+            }
+        }
 
         return binding.root
     }
@@ -100,6 +135,16 @@ class TryOnFragment : Fragment() {
                     CvType.CV_32FC2,
                     Scalar(0.0, 0.0, 0.0, 0.0)
                 )
+
+                binding.offsetXSlider.apply {
+                    valueFrom = -binding.cameraPreview.width / 2f
+                    valueTo = -valueFrom
+                }
+
+                binding.offsetYSlider.apply {
+                    valueFrom = -binding.cameraPreview.height / 2f
+                    valueTo = -valueFrom
+                }
             }
         }
     }
@@ -141,6 +186,8 @@ class TryOnFragment : Fragment() {
         val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)!!.transformPosition(mappingMatrix)
         val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)!!.transformPosition(mappingMatrix)
 
+        viewModel.alignmentOffsetX = abs(leftShoulder.x - rightShoulder.x) / 2.0
+
         dstPoints.apply {
             put(0, 0, leftShoulder.x.toDouble(), leftShoulder.y.toDouble())
             put(1, 0, rightShoulder.x.toDouble(), rightShoulder.y.toDouble())
@@ -153,9 +200,9 @@ class TryOnFragment : Fragment() {
         val cX = w/2f
         val cY = h/2f
 
-        val s = viewModel.embroideryScale
-        val dx = viewModel.embroideryOffsetX
-        val dy = viewModel.embroideryOffsetY
+        val s = viewModel.scale
+        val dx = viewModel.offsetX
+        val dy = viewModel.offsetY
 
         val t1 = Mat.eye(3,3,CvType.CV_64F).apply {
             put(0,2,-cX); put(1,2,-cY)

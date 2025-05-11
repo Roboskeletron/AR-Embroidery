@@ -10,7 +10,8 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
-material = "1.12.0"
+lifecycleLivedataKtx = "2.9.0"
+material = "1.13.0-alpha13"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 poseDetection = "18.0.0-beta5"
@@ -27,6 +28,8 @@ androidx-camera-mlkit-vision = { module = "androidx.camera:camera-mlkit-vision" 
 androidx-camera-video = { module = "androidx.camera:camera-video" }
 androidx-camera-view = { module = "androidx.camera:camera-view" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx" }
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
