@@ -1,4 +1,4 @@
-package ru.vsu.arembroidery.domain
+package ru.vsu.arembroidery.analyzers
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -15,8 +15,8 @@ import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
 import androidx.camera.core.impl.utils.TransformUtils.rotateRect
-import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetector
+import ru.vsu.arembroidery.models.PoseAnalysisResult
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -54,7 +54,14 @@ class PoseDetectionAnalyzer(
         poseDetector.process(mediaImage, image.imageInfo.rotationDegrees, analysisToTarget)
             .addOnSuccessListener { pose ->
                 executor.execute {
-                    consumer.accept(PoseAnalysisResult(pose,analysisToTarget, image.width, image.height))
+                    consumer.accept(
+                        PoseAnalysisResult(
+                            pose,
+                            analysisToTarget,
+                            image.width,
+                            image.height
+                        )
+                    )
                 }
             }
             .addOnCompleteListener {
