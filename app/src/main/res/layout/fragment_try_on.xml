@@ -47,6 +47,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:onClick="@{() -> viewModel.alignLeft()}"
                         app:icon="@drawable/ic_align_left"
                         app:iconGravity="textStart" />
 
@@ -56,6 +57,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:onClick="@{() -> viewModel.alignCenter()}"
                         app:icon="@drawable/ic_align_center"
                         app:iconGravity="textStart" />
 
@@ -65,6 +67,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:onClick="@{() -> viewModel.alignRight()}"
                         app:icon="@drawable/ic_align_right"
                         app:iconGravity="textStart" />
                 </com.google.android.material.button.MaterialButtonGroup>
@@ -82,7 +85,7 @@
                     android:id="@+id/scaleSlider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:value="@{viewModel.embroideryScale}"
+                    android:value="50"
                     android:valueFrom="0"
                     android:valueTo="100"
                     app:labelBehavior="floating" />
@@ -100,9 +103,7 @@
                     android:id="@+id/offsetXSlider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:value="@{viewModel.embroideryOffsetX}"
-                    android:valueFrom="-100"
-                    android:valueTo="100"
+                    android:value="@={viewModel.embroideryOffsetX}"
                     app:labelBehavior="floating" />
 
                 <!-- Offset Y Slider -->
@@ -118,9 +119,7 @@
                     android:id="@+id/offsetYSlider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:value="@{viewModel.embroideryOffsetY}"
-                    android:valueFrom="-100"
-                    android:valueTo="100"
+                    android:value="@={-viewModel.embroideryOffsetY}"
                     app:labelBehavior="floating" />
 
             </LinearLayout>

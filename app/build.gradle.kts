@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.devtools.ksp")
+    id("kotlin-kapt")
 }
 
 android {
@@ -20,8 +20,8 @@ android {
 
     buildFeatures {
         viewBinding = true
-        //noinspection DataBindingWithoutKapt
         dataBinding = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -44,6 +44,8 @@ android {
 
 dependencies {
 
+    implementation(libs.insert.koin.koin.android)
+
     implementation(libs.mlkit.pose.detection)
     implementation(libs.mlkit.pose.detection.accurate)
     implementation(libs.androidx.camera.mlkit.vision)
@@ -64,6 +66,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    ksp(libs.androidx.room.compiler)
 }

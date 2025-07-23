@@ -1,4 +1,4 @@
-package ru.vsu.arembroidery.domain
+package ru.vsu.arembroidery.views
 
 import android.graphics.Canvas
 import android.graphics.Color
