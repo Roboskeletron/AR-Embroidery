@@ -6,6 +6,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
 import ru.vsu.arembroidery.di.appModule
 import ru.vsu.arembroidery.di.dataModule
+import ru.vsu.arembroidery.di.networkModule
 
 
 class MainApplication : Application() {
@@ -17,7 +18,8 @@ class MainApplication : Application() {
             androidContext(this@MainApplication)
             modules(
                 appModule,
-                dataModule
+                dataModule,
+                networkModule
             )
         }
     }

@@ -1,4 +1,4 @@
-package ru.vsu.arembroidery.views
+package ru.vsu.arembroidery.viewmodels
 
 import android.graphics.Matrix
 import android.graphics.drawable.Drawable
@@ -10,6 +10,8 @@ import com.google.mlkit.vision.pose.PoseLandmark
 import ru.vsu.arembroidery.models.PoseAnalysisResult
 import ru.vsu.arembroidery.usecases.CreateWarpedBitmapUseCase
 import ru.vsu.arembroidery.usecases.TransformLandMarkUseCase
+import ru.vsu.arembroidery.views.EmbroideryOverlay
+import ru.vsu.arembroidery.views.PoseDebugOverlay
 import kotlin.math.abs
 
 class TryOnFragmentVM(

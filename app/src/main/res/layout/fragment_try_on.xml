@@ -4,7 +4,7 @@
     <data>
         <variable
             name="viewModel"
-            type="ru.vsu.arembroidery.views.TryOnFragmentVM" />
+            type="ru.vsu.arembroidery.viewmodels.TryOnFragmentVM" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"

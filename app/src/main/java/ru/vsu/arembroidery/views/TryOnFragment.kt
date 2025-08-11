@@ -18,6 +18,7 @@ import ru.vsu.arembroidery.R
 import ru.vsu.arembroidery.analyzers.PoseDetectionAnalyzer
 import ru.vsu.arembroidery.data.MatrixRepository
 import ru.vsu.arembroidery.databinding.FragmentTryOnBinding
+import ru.vsu.arembroidery.viewmodels.TryOnFragmentVM
 
 class TryOnFragment : Fragment() {
 
