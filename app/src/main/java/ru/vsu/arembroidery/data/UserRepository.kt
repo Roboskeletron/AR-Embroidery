@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import ru.vsu.arembroidery.models.User
 import ru.vsu.arembroidery.models.dto.LoginRequest
 import ru.vsu.arembroidery.models.dto.UserRegistrationRequest
-import ru.vsu.arembroidery.network.ApiResult
 import ru.vsu.arembroidery.network.ApiService
 
 class UserRepository(private val apiService: ApiService) {
@@ -18,8 +17,8 @@ class UserRepository(private val apiService: ApiService) {
         email: String,
         password: String,
         roleId: Int
-    ): ApiResult<User> = withContext(Dispatchers.IO) {
-        try {
+    ): Result<User> = withContext(Dispatchers.IO) {
+        runCatching {
             val request = UserRegistrationRequest(
                 username = username,
                 firstName = firstName,
@@ -35,7 +34,7 @@ class UserRepository(private val apiService: ApiService) {
             if (response.isSuccessful) {
                 val responseBody = response.body()
                 if (responseBody != null) {
-                    val user = User(
+                    User(
                         id = responseBody.data.id,
                         username = responseBody.data.username,
                         firstName = responseBody.data.firstName,
@@ -45,27 +44,24 @@ class UserRepository(private val apiService: ApiService) {
                         password = "", // Don't store password
                         roleId = responseBody.data.roleId
                     )
-                    ApiResult.Success(user)
                 } else {
-                    ApiResult.Error("Registration failed: Empty response")
+                    throw Exception("Registration failed: Empty response")
                 }
             } else {
-                ApiResult.Error("Registration failed: ${response.message()}")
+                throw Exception("Registration failed: ${response.message()}")
             }
-        } catch (e: Exception) {
-            ApiResult.Error("Registration failed: ${e.message}")
         }
     }
 
-    suspend fun loginUser(email: String, password: String): ApiResult<User> = withContext(Dispatchers.IO) {
-        try {
+    suspend fun loginUser(email: String, password: String): Result<User> = withContext(Dispatchers.IO) {
+        runCatching {
             val request = LoginRequest(email = email, password = password)
             val response = apiService.loginUser(request)
 
             if (response.isSuccessful) {
                 val responseBody = response.body()
                 if (responseBody != null) {
-                    val user = User(
+                    User(
                         id = responseBody.data.id,
                         username = responseBody.data.username,
                         firstName = responseBody.data.firstName,
@@ -75,15 +71,12 @@ class UserRepository(private val apiService: ApiService) {
                         password = "", // Don't store password
                         roleId = responseBody.data.roleId
                     )
-                    ApiResult.Success(user)
                 } else {
-                    ApiResult.Error("Login failed: Empty response")
+                    throw Exception("Login failed: Empty response")
                 }
             } else {
-                ApiResult.Error("Login failed: ${response.message()}")
+                throw Exception("Login failed: ${response.message()}")
             }
-        } catch (e: Exception) {
-            ApiResult.Error("Login failed: ${e.message}")
         }
     }
 }

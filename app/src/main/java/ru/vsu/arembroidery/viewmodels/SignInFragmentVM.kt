@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.passay.PasswordData
 import org.passay.PasswordValidator
 import ru.vsu.arembroidery.data.UserRepository
+import ru.vsu.arembroidery.models.User
 import ru.vsu.arembroidery.utils.SessionManager
 
 class SignInFragmentVM(
@@ -18,11 +19,16 @@ class SignInFragmentVM(
 ) : ViewModel() {
     private val _emailError = MutableLiveData<String?>()
     private val _passwordError = MutableLiveData<String?>()
+    private val _signInError = MutableLiveData<String?>()
+    private val _signInSuccessful = MutableLiveData<Boolean>()
 
     val email = MutableLiveData<String?>()
     val password = MutableLiveData<String?>()
+
     val emailError: LiveData<String?> = _emailError
     val passwordError: LiveData<String?> = _passwordError
+    val signInError: LiveData<String?> = _signInError
+    val signInSuccessful: LiveData<Boolean> = _signInSuccessful
 
     fun signIn() {
         _emailError.value = "Invalid email provide".takeUnless { Patterns.EMAIL_ADDRESS.matcher(email.value ?: "").matches() }
@@ -35,8 +41,13 @@ class SignInFragmentVM(
         }
 
         viewModelScope.launch {
-            val r = userRepository.loginUser(email.value!!, password.value!!)
-
+            userRepository.loginUser(email.value!!, password.value!!)
+                .onSuccess { user ->
+                    sessionManager.saveUserSession(user)
+                    _signInSuccessful.postValue(true)
+                }.onFailure {
+                    _signInError.postValue("Invalid email or password")
+                }
         }
     }
 }

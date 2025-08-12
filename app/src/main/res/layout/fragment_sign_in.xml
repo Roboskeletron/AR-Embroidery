@@ -35,12 +35,26 @@
             android:layout_height="wrap_content"
             android:hint="Password"
             android:inputType="textPassword"
-            android:textSize="18sp"
+            android.textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/emailEdit"
             app:layout_constraintBottom_toTopOf="@id/signInBtn"
             android:text="@={viewModel.password}"
+            />
+
+        <TextView
+            android:id="@+id/errorLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_dark"
+            app:layout_constraintTop_toBottomOf="@id/passwordEdit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/signInBtn"
+            android:text="@{viewModel.signInError}"
+            android:visibility="@{viewModel.signInError == null ? View.GONE : View.VISIBLE}"
+            tools:text="Invalid email or password"
             />
 
         <Button
@@ -51,7 +65,7 @@
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/passwordEdit"
+            app:layout_constraintTop_toBottomOf="@id/errorLabel"
             app:layout_constraintBottom_toTopOf="@id/signUpBtn"
             android:onClick="@{() -> viewModel.signIn()}"/>
 

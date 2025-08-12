@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="ru.vsu.arembroidery.viewmodels.SignUpFragmentVM" />
@@ -22,6 +22,7 @@
             android:layout_height="wrap_content"
             android:hint="Username"
             android:text="@={viewModel.username}"
+            app:error="@{viewModel.usernameError}"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/firstNameEdit"
             app:layout_constraintEnd_toEndOf="parent"
@@ -36,6 +37,7 @@
             android:layout_height="wrap_content"
             android:hint="First Name"
             android:text="@={viewModel.firstName}"
+            app:error="@{viewModel.firstNameError}"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/lastNameEdit"
             app:layout_constraintEnd_toEndOf="parent"
@@ -49,6 +51,7 @@
             android:layout_height="wrap_content"
             android:hint="Last Name"
             android:text="@={viewModel.lastName}"
+            app:error="@{viewModel.lastNameError}"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/emailEdit"
             app:layout_constraintEnd_toEndOf="parent"
@@ -63,6 +66,7 @@
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:text="@={viewModel.email}"
+            app:error="@{viewModel.emailError}"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/phoneEdit"
             app:layout_constraintEnd_toEndOf="parent"
@@ -76,6 +80,7 @@
             android:layout_height="wrap_content"
             android:hint="Phone Number"
             android:text="@={viewModel.phoneNumber}"
+            app:error="@{viewModel.phoneNumberError}"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/passwordEdit"
             app:layout_constraintEnd_toEndOf="parent"
@@ -90,6 +95,7 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:text="@={viewModel.password}"
+            app:error="@{viewModel.passwordError}"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/confirmPasswordEdit"
             app:layout_constraintEnd_toEndOf="parent"
@@ -104,11 +110,26 @@
             android:hint="Confirm Password"
             android:inputType="textPassword"
             android:text="@={viewModel.confirmPassword}"
+            app:error="@{viewModel.confirmPasswordError}"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/signUpBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/passwordEdit" />
+            
+        <!-- General Error Message -->
+        <TextView
+            android:id="@+id/errorLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.error}"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="@{viewModel.error != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEdit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/signUpBtn"
+            android:layout_marginTop="8dp"/>
 
         <!-- Register Button -->
         <Button
@@ -121,7 +142,7 @@
             app:layout_constraintBottom_toTopOf="@id/signInBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEdit" />
+            app:layout_constraintTop_toBottomOf="@id/errorLabel" />
 
         <!-- Register Button -->
         <Button
