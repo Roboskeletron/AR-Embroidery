@@ -24,6 +24,7 @@ class SignUpFragmentVM(
     private val _phoneNumberError = MutableLiveData<String?>()
     private val _confirmPasswordError = MutableLiveData<String?>()
     private val _signUpSuccessful = MutableLiveData(false)
+    private val _error = MutableLiveData<String?>()
 
     val email = MutableLiveData<String?>()
     val password = MutableLiveData<String?>()
@@ -41,9 +42,11 @@ class SignUpFragmentVM(
     val phoneNumberError: LiveData<String?> = _phoneNumberError
     val confirmPasswordError: LiveData<String?> = _confirmPasswordError
     val signUpSuccessful: LiveData<Boolean> = _signUpSuccessful
+    val error: LiveData<String?> = _error
 
     fun signUp() {
         var hasError = false
+        _error.value = null
 
         _usernameError.value = "Username is required".takeIf { username.value.isNullOrBlank() }
         if (_usernameError.value != null) hasError = true
@@ -83,6 +86,12 @@ class SignUpFragmentVM(
             ).onSuccess { user ->
                 sessionManager.saveUserSession(user)
                 _signUpSuccessful.postValue(true)
+            }.onFailure {
+                if (it.message?.contains("user already exists", ignoreCase = true) == true) {
+                    _error.postValue("A user with this email or username already exists.")
+                } else {
+                    _error.postValue("An unexpected error occurred. Please try again.")
+                }
             }
         }
     }

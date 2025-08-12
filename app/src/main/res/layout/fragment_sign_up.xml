@@ -15,6 +15,21 @@
         android:paddingHorizontal="32dp"
         tools:context=".views.SignUpFragment">
 
+        <!-- General Error Message -->
+        <TextView
+            android:id="@+id/errorLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.error}"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="@{viewModel.error != null ? View.VISIBLE : View.GONE}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/usernameEdit"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintVertical_chainStyle="packed"/>
+
         <!-- Username Field -->
         <EditText
             android:id="@+id/usernameEdit"
@@ -27,8 +42,7 @@
             app:layout_constraintBottom_toTopOf="@id/firstNameEdit"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"/>
+            app:layout_constraintTop_toBottomOf="@id/errorLabel" />
 
         <!-- First Name Field -->
         <EditText
@@ -116,20 +130,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/passwordEdit" />
-            
-        <!-- General Error Message -->
-        <TextView
-            android:id="@+id/errorLabel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.error}"
-            android:textColor="@android:color/holo_red_dark"
-            android:visibility="@{viewModel.error != null ? View.VISIBLE : View.GONE}"
-            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEdit"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/signUpBtn"
-            android:layout_marginTop="8dp"/>
 
         <!-- Register Button -->
         <Button
@@ -142,7 +142,8 @@
             app:layout_constraintBottom_toTopOf="@id/signInBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/errorLabel" />
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordEdit"
+            android:layout_marginTop="16dp"/>
 
         <!-- Register Button -->
         <Button
