@@ -7,5 +7,6 @@ data class UserRegistrationRequest(
     val phoneNumber: String,
     val email: String,
     val password: String,
+    val passwordConfirmation: String,
     val roleId: Int
 )

@@ -16,6 +16,7 @@ class UserRepository(private val apiService: ApiService) {
         phoneNumber: String,
         email: String,
         password: String,
+        passwordConfirmation: String,
         roleId: Int
     ): Result<User> = withContext(Dispatchers.IO) {
         runCatching {
@@ -26,6 +27,7 @@ class UserRepository(private val apiService: ApiService) {
                 phoneNumber = phoneNumber,
                 email = email,
                 password = password,
+                passwordConfirmation = passwordConfirmation,
                 roleId = roleId
             )
 

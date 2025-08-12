@@ -11,6 +11,8 @@ import org.passay.PasswordValidator
 import org.passay.WhitespaceRule
 import ru.vsu.arembroidery.usecases.CreateWarpedBitmapUseCase
 import ru.vsu.arembroidery.usecases.TransformLandMarkUseCase
+import ru.vsu.arembroidery.viewmodels.SignInFragmentVM
+import ru.vsu.arembroidery.viewmodels.SignUpFragmentVM
 import ru.vsu.arembroidery.viewmodels.TryOnFragmentVM
 
 val appModule = module {
@@ -37,4 +39,6 @@ val appModule = module {
         )
     }
     viewModelOf(::TryOnFragmentVM)
+    viewModelOf(::SignInFragmentVM)
+    viewModelOf(::SignUpFragmentVM)
 }

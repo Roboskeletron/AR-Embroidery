@@ -10,7 +10,7 @@ import ru.vsu.arembroidery.models.dto.UserRegistrationResponse
 
 interface ApiService {
     
-    @POST("api/v1/users")
+    @POST("api/v1/users/register")
     suspend fun registerUser(@Body request: UserRegistrationRequest): Response<UserRegistrationResponse>
     
     @POST("api/v1/auth/login")

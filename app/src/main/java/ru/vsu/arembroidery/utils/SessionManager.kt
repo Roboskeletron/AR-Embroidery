@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import ru.vsu.arembroidery.models.User
@@ -36,7 +37,7 @@ class SessionManager(private val dataStore: DataStore<Preferences>) {
     }
     
     suspend fun isLoggedIn(): Boolean {
-           return dataStore.data.last()[KEY_IS_LOGGED_IN].toBoolean()
+           return dataStore.data.firstOrNull()?.get(KEY_IS_LOGGED_IN).toBoolean()
     }
     
     suspend fun getCurrentUser(): User? {

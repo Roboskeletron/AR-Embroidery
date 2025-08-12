@@ -23,7 +23,7 @@ class SignUpFragmentVM(
     private val _lastNameError = MutableLiveData<String?>()
     private val _phoneNumberError = MutableLiveData<String?>()
     private val _confirmPasswordError = MutableLiveData<String?>()
-    private val _signUpSuccessful = MutableLiveData(false)
+    private val _signUpSuccessful = MutableLiveData<Boolean>()
     private val _error = MutableLiveData<String?>()
 
     val email = MutableLiveData<String?>()
@@ -82,7 +82,8 @@ class SignUpFragmentVM(
                 phoneNumber = phoneNumber.value!!,
                 email = email.value!!,
                 password = password.value!!,
-                roleId = 1 // Assuming a default roleId for now
+                passwordConfirmation = confirmPassword.value!!,
+                roleId = 3 // Assuming a default roleId for now
             ).onSuccess { user ->
                 sessionManager.saveUserSession(user)
                 _signUpSuccessful.postValue(true)
