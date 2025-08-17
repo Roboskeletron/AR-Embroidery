@@ -1,5 +1,6 @@
 package ru.vsu.arembroidery.viewmodels
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,15 +9,17 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.passay.PasswordData
 import org.passay.PasswordValidator
-import ru.vsu.arembroidery.data.UserRepository
-import ru.vsu.arembroidery.models.User
-import ru.vsu.arembroidery.utils.SessionManager
+import ru.vsu.arembroidery.utils.AuthManager
 
 class SignInFragmentVM(
-    private val sessionManager: SessionManager,
-    private val userRepository: UserRepository,
+    private val authManager: AuthManager,
     private val passwordValidator: PasswordValidator
 ) : ViewModel() {
+
+    companion object{
+        private const val  TAG = "SignInFragmentVM"
+    }
+
     private val _emailError = MutableLiveData<String?>()
     private val _passwordError = MutableLiveData<String?>()
     private val _signInError = MutableLiveData<String?>()
@@ -41,12 +44,13 @@ class SignInFragmentVM(
         }
 
         viewModelScope.launch {
-            userRepository.loginUser(email.value!!, password.value!!)
-                .onSuccess { user ->
-                    sessionManager.saveUserSession(user)
+            authManager.signIn(email.value!!, password.value!!)
+                .onSuccess {
                     _signInSuccessful.postValue(true)
-                }.onFailure {
+                }
+                .onFailure {
                     _signInError.postValue("Invalid email or password")
+                    Log.e(TAG, "Failed to sign in", it)
                 }
         }
     }

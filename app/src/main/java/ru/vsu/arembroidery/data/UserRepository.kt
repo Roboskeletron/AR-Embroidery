@@ -1,13 +1,13 @@
 package ru.vsu.arembroidery.data
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import ru.vsu.arembroidery.models.User
+import retrofit2.HttpException
 import ru.vsu.arembroidery.models.dto.LoginRequest
+import ru.vsu.arembroidery.models.dto.LoginResponse
 import ru.vsu.arembroidery.models.dto.UserRegistrationRequest
 import ru.vsu.arembroidery.network.ApiService
 
 class UserRepository(private val apiService: ApiService) {
+
 
     suspend fun registerUser(
         username: String,
@@ -18,9 +18,9 @@ class UserRepository(private val apiService: ApiService) {
         password: String,
         passwordConfirmation: String,
         roleId: Int
-    ): Result<User> = withContext(Dispatchers.IO) {
+    ): Result<Int> =
         runCatching {
-            val request = UserRegistrationRequest(
+            val registerRequest = UserRegistrationRequest(
                 username = username,
                 firstName = firstName,
                 lastName = lastName,
@@ -31,54 +31,26 @@ class UserRepository(private val apiService: ApiService) {
                 roleId = roleId
             )
 
-            val response = apiService.registerUser(request)
+            val response = apiService.registerUser(registerRequest)
 
             if (response.isSuccessful) {
-                val responseBody = response.body()
-                if (responseBody != null) {
-                    User(
-                        id = responseBody.data.id,
-                        username = responseBody.data.username,
-                        firstName = responseBody.data.firstName,
-                        lastName = responseBody.data.lastName,
-                        phoneNumber = responseBody.data.phoneNumber,
-                        email = responseBody.data.email,
-                        password = "", // Don't store password
-                        roleId = responseBody.data.roleId
-                    )
-                } else {
-                    throw Exception("Registration failed: Empty response")
-                }
-            } else {
-                throw Exception("Registration failed: ${response.message()}")
+                response.body()!!
+            }
+            else {
+                throw HttpException(response)
             }
         }
-    }
 
-    suspend fun loginUser(email: String, password: String): Result<User> = withContext(Dispatchers.IO) {
+    suspend fun loginUser(email: String, password: String): Result<LoginResponse> =
         runCatching {
-            val request = LoginRequest(email = email, password = password)
-            val response = apiService.loginUser(request)
+            val loginRequest = LoginRequest(email = email, password = password)
+            val response = apiService.loginUser(loginRequest)
 
             if (response.isSuccessful) {
-                val responseBody = response.body()
-                if (responseBody != null) {
-                    User(
-                        id = responseBody.data.id,
-                        username = responseBody.data.username,
-                        firstName = responseBody.data.firstName,
-                        lastName = responseBody.data.lastName,
-                        phoneNumber = responseBody.data.phoneNumber,
-                        email = responseBody.data.email,
-                        password = "", // Don't store password
-                        roleId = responseBody.data.roleId
-                    )
-                } else {
-                    throw Exception("Login failed: Empty response")
-                }
-            } else {
-                throw Exception("Login failed: ${response.message()}")
+                response.body()!!
+            }
+            else {
+                throw HttpException(response)
             }
         }
-    }
 }

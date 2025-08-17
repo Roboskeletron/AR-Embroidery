@@ -1,5 +1,6 @@
 package ru.vsu.arembroidery.viewmodels
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,14 +9,16 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.passay.PasswordData
 import org.passay.PasswordValidator
-import ru.vsu.arembroidery.data.UserRepository
-import ru.vsu.arembroidery.utils.SessionManager
+import ru.vsu.arembroidery.utils.AuthManager
 
 class SignUpFragmentVM(
-    private val sessionManager: SessionManager,
-    private val userRepository: UserRepository,
+    private val authManager: AuthManager,
     private val passwordValidator: PasswordValidator
 ) : ViewModel() {
+    companion object {
+        private const val TAG = "SignUpFragmentVM"
+    }
+
     private val _emailError = MutableLiveData<String?>()
     private val _passwordError = MutableLiveData<String?>()
     private val _usernameError = MutableLiveData<String?>()
@@ -75,24 +78,24 @@ class SignUpFragmentVM(
         }
 
         viewModelScope.launch {
-            userRepository.registerUser(
+            authManager.signUp(
                 username = username.value!!,
                 firstName = firstName.value!!,
                 lastName = lastName.value!!,
                 phoneNumber = phoneNumber.value!!,
                 email = email.value!!,
                 password = password.value!!,
-                passwordConfirmation = confirmPassword.value!!,
-                roleId = 3 // Assuming a default roleId for now
+                passwordConfirmation = confirmPassword.value!!
             ).onSuccess { user ->
-                sessionManager.saveUserSession(user)
                 _signUpSuccessful.postValue(true)
-            }.onFailure {
-                if (it.message?.contains("user already exists", ignoreCase = true) == true) {
+            }.onFailure { t ->
+                if (t.message?.contains("user already exists", ignoreCase = true) == true) {
                     _error.postValue("A user with this email or username already exists.")
                 } else {
                     _error.postValue("An unexpected error occurred. Please try again.")
                 }
+
+                Log.e(TAG, "Failed to sign up", t)
             }
         }
     }

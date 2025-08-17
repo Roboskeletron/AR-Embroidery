@@ -6,13 +6,12 @@ import retrofit2.http.POST
 import ru.vsu.arembroidery.models.dto.LoginRequest
 import ru.vsu.arembroidery.models.dto.LoginResponse
 import ru.vsu.arembroidery.models.dto.UserRegistrationRequest
-import ru.vsu.arembroidery.models.dto.UserRegistrationResponse
 
 interface ApiService {
-    
-    @POST("api/v1/users/register")
-    suspend fun registerUser(@Body request: UserRegistrationRequest): Response<UserRegistrationResponse>
-    
-    @POST("api/v1/auth/login")
+
+    @POST("/api/v1/users/register")
+    suspend fun registerUser(@Body request: UserRegistrationRequest): Response<Int>
+
+    @POST("/api/v1/accessToken")
     suspend fun loginUser(@Body request: LoginRequest): Response<LoginResponse>
 }
