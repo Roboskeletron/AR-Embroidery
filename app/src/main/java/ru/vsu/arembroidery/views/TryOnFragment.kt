@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.mlkit.vision.pose.PoseDetector
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -43,6 +44,10 @@ class TryOnFragment : Fragment() {
 
         binding.scaleSlider.addOnChangeListener { _, value, _ ->
             viewModel.scale = value / 100.0
+        }
+
+        binding.embroideryImageView.setOnClickListener {
+            findNavController().navigate(TryOnFragmentDirections.actionTryOnFragmentToDesignsFragment())
         }
 
         return binding.root

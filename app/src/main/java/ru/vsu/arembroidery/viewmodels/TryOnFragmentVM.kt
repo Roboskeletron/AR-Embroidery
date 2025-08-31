@@ -68,6 +68,10 @@ class TryOnFragmentVM(
         )
     }
 
+    fun takePicture() {
+
+    }
+
     private fun adjustAlignmentOffset(pose: Pose, mappingMatrix: Matrix) {
         if (pose.allPoseLandmarks.isEmpty()){
             alignmentOffsetX = 0.0
