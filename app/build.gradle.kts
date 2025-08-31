@@ -58,6 +58,11 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.gson)
 
+    implementation(libs.androidx.paging.runtime)
+
+    implementation(libs.glide)
+    annotationProcessor(libs.compiler)
+
     // Coroutines for async operations
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)

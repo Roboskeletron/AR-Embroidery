@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
+import ru.vsu.arembroidery.data.DesignPagingSource
 import ru.vsu.arembroidery.data.MatrixRepository
 import ru.vsu.arembroidery.data.UserRepository
 import ru.vsu.arembroidery.utils.AuthManager
@@ -16,4 +17,5 @@ val dataModule = module {
     single { MatrixRepository() }
     single { AuthManager(androidContext().dataStore, get()) }
     single { UserRepository(get()) }
+    single { DesignPagingSource(get()) }
 }
