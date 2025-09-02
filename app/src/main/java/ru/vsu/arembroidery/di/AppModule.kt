@@ -9,7 +9,10 @@ import org.passay.EnglishCharacterData
 import org.passay.LengthRule
 import org.passay.PasswordValidator
 import org.passay.WhitespaceRule
+import ru.vsu.arembroidery.adapters.DesignAdapter
 import ru.vsu.arembroidery.usecases.CreateWarpedBitmapUseCase
+import ru.vsu.arembroidery.usecases.LoadEmbroideryUseCase
+import ru.vsu.arembroidery.usecases.SelectEmbroideryUseCase
 import ru.vsu.arembroidery.usecases.TransformLandMarkUseCase
 import ru.vsu.arembroidery.viewmodels.DesignsFragmentVM
 import ru.vsu.arembroidery.viewmodels.SignInFragmentVM
@@ -39,6 +42,9 @@ val appModule = module {
             )
         )
     }
+    single { DesignAdapter(get()) }
+    single { SelectEmbroideryUseCase(get()) }
+    single { LoadEmbroideryUseCase(get(), get()) }
     viewModelOf(::TryOnFragmentVM)
     viewModelOf(::SignInFragmentVM)
     viewModelOf(::SignUpFragmentVM)

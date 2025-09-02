@@ -1,19 +1,21 @@
 package ru.vsu.arembroidery.adapters
 
-import android.graphics.drawable.DrawableWrapper
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.navigation.findNavController
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.vsu.arembroidery.BuildConfig
-import ru.vsu.arembroidery.R
 import ru.vsu.arembroidery.databinding.DesignItemBinding
 import ru.vsu.arembroidery.models.DesignItem
+import ru.vsu.arembroidery.usecases.SelectEmbroideryUseCase
 
-class DesignAdapter : PagingDataAdapter<DesignItem, DesignAdapter.DesignViewHolder>(DesignItemDiffCallback()) {
+class DesignAdapter(
+    private val selectEmbroideryUseCase: SelectEmbroideryUseCase
+) : PagingDataAdapter<DesignItem, DesignAdapter.DesignViewHolder>(DesignItemDiffCallback()) {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -37,13 +39,20 @@ class DesignAdapter : PagingDataAdapter<DesignItem, DesignAdapter.DesignViewHold
         private val binding: DesignItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(designItem: DesignItem){
-            binding.item = designItem
+            binding.apply {
+                item = designItem
+                if (designItem.fileId > 0) {
+                    Glide.with(root)
+                        .load("${BuildConfig.BASE_URL}api/v1/files/image/${designItem.fileId}")
+                        .into(designImage)
 
-            if (designItem.fileId > 0) {
-                Glide.with(binding.root)
-                    .load("${BuildConfig.BASE_URL}api/v1/files/image/${designItem.fileId}")
-                    .into(binding.designImage)
-                    .onLoadFailed(ContextCompat.getDrawable(binding.root.context, R.drawable.example_texture))
+                    root.apply {
+                        designImage.setOnClickListener {
+                            selectEmbroideryUseCase.invoke(context, designImage.drawable.toBitmap())
+                            findNavController().navigateUp()
+                        }
+                    }
+                }
             }
         }
     }

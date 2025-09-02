@@ -7,12 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenStarted
-import androidx.lifecycle.withCreated
-import androidx.lifecycle.withStarted
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.vsu.arembroidery.adapters.DesignAdapter
 import ru.vsu.arembroidery.databinding.FragmentDesignsBinding
@@ -21,6 +20,7 @@ import ru.vsu.arembroidery.viewmodels.DesignsFragmentVM
 class DesignsFragment : Fragment() {
     private lateinit var binding: FragmentDesignsBinding
     private val viewModel by viewModel<DesignsFragmentVM>()
+    private val designAdapter by inject<DesignAdapter>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,8 +32,6 @@ class DesignsFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.toolbar.setupWithNavController(findNavController())
-
-        val designAdapter = DesignAdapter()
 
         binding.designsGrid.adapter = designAdapter
 

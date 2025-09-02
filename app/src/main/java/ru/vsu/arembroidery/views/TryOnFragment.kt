@@ -19,6 +19,7 @@ import ru.vsu.arembroidery.R
 import ru.vsu.arembroidery.analyzers.PoseDetectionAnalyzer
 import ru.vsu.arembroidery.data.MatrixRepository
 import ru.vsu.arembroidery.databinding.FragmentTryOnBinding
+import ru.vsu.arembroidery.usecases.LoadEmbroideryUseCase
 import ru.vsu.arembroidery.viewmodels.TryOnFragmentVM
 
 class TryOnFragment : Fragment() {
@@ -32,6 +33,7 @@ class TryOnFragment : Fragment() {
     private val poseDetector by inject<PoseDetector>()
     private val matrixRepository by inject<MatrixRepository>()
     private val viewModel by viewModel<TryOnFragmentVM>()
+    private val loadEmbroideryUseCase by inject<LoadEmbroideryUseCase>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,11 +63,8 @@ class TryOnFragment : Fragment() {
     }
 
     private fun loadEmbroidery() {
-        val embroideryBitmap = BitmapFactory.decodeResource(resources, R.drawable.example_texture)
-
-        val embroideryMat = Mat(embroideryBitmap.height, embroideryBitmap.width, CvType.CV_8UC4)
-        Utils.bitmapToMat(embroideryBitmap, embroideryMat)
-        matrixRepository.updateEmbroideryMat(embroideryMat)
+        val bitmap = loadEmbroideryUseCase.invoke(requireContext())
+        binding.embroideryImageView.setImageBitmap(bitmap)
     }
 
     private fun startCamera() {
