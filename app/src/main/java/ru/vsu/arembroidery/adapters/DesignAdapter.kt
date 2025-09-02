@@ -1,12 +1,15 @@
 package ru.vsu.arembroidery.adapters
 
+import android.graphics.drawable.DrawableWrapper
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.vsu.arembroidery.BuildConfig
+import ru.vsu.arembroidery.R
 import ru.vsu.arembroidery.databinding.DesignItemBinding
 import ru.vsu.arembroidery.models.DesignItem
 
@@ -36,9 +39,12 @@ class DesignAdapter : PagingDataAdapter<DesignItem, DesignAdapter.DesignViewHold
         fun bind(designItem: DesignItem){
             binding.item = designItem
 
-            Glide.with(binding.root)
-                .load("${BuildConfig.BASE_URL}api/v1/files/image/${designItem.fileId}")
-                .into(binding.designImage)
+            if (designItem.fileId > 0) {
+                Glide.with(binding.root)
+                    .load("${BuildConfig.BASE_URL}api/v1/files/image/${designItem.fileId}")
+                    .into(binding.designImage)
+                    .onLoadFailed(ContextCompat.getDrawable(binding.root.context, R.drawable.example_texture))
+            }
         }
     }
 
