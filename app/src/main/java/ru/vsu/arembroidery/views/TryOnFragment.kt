@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.mlkit.vision.pose.PoseDetector
 import org.koin.android.ext.android.inject
@@ -105,5 +106,13 @@ class TryOnFragment : Fragment() {
                 }
             }
         }
+
+        binding.takePictureButton.setOnClickListener {
+            takePicture()
+        }
+    }
+
+    private fun takePicture() = binding.cameraPreview.bitmap?.let { bitmap ->
+        viewModel.takePicture(requireContext().contentResolver, bitmap)
     }
 }
