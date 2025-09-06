@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.drawable.Drawable
-import android.media.AudioManager
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -16,7 +15,7 @@ import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import ru.vsu.arembroidery.BuildConfig
 import ru.vsu.arembroidery.models.PoseAnalysisResult
 import ru.vsu.arembroidery.usecases.CreateWarpedBitmapUseCase
 import ru.vsu.arembroidery.usecases.TransformLandMarkUseCase
@@ -70,7 +69,7 @@ class TryOnFragmentVM(
         return listOfNotNull(
             PoseDebugOverlay(poseAnalysisResult.pose) {
                 it.map { transformLandMarkUseCase(it, poseAnalysisResult.mappingMatrix) }
-            },
+            }.takeIf { BuildConfig.SHOW_POSE_DEBUG_OVERLAY },
             createWarpedBitmapUseCase(
                 poseAnalysisResult.pose,
                 poseAnalysisResult.mappingMatrix,

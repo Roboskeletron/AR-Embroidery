@@ -19,6 +19,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "BASE_URL", "\"http://192.168.1.58:8080/\"")
+        buildConfigField("boolean", "SHOW_POSE_DEBUG_OVERLAY", "false")
     }
 
     buildFeatures {
