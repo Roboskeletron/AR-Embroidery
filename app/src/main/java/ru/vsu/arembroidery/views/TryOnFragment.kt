@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.camera.view.LifecycleCameraController
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.mlkit.vision.pose.PoseDetector
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -18,6 +20,8 @@ import ru.vsu.arembroidery.R
 import ru.vsu.arembroidery.analyzers.PoseDetectionAnalyzer
 import ru.vsu.arembroidery.data.MatrixRepository
 import ru.vsu.arembroidery.databinding.FragmentTryOnBinding
+import ru.vsu.arembroidery.usecases.LoadEmbroideryUseCase
+import ru.vsu.arembroidery.viewmodels.TryOnFragmentVM
 
 class TryOnFragment : Fragment() {
 
@@ -30,6 +34,7 @@ class TryOnFragment : Fragment() {
     private val poseDetector by inject<PoseDetector>()
     private val matrixRepository by inject<MatrixRepository>()
     private val viewModel by viewModel<TryOnFragmentVM>()
+    private val loadEmbroideryUseCase by inject<LoadEmbroideryUseCase>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,6 +49,10 @@ class TryOnFragment : Fragment() {
             viewModel.scale = value / 100.0
         }
 
+        binding.embroideryImageView.setOnClickListener {
+            findNavController().navigate(TryOnFragmentDirections.actionTryOnFragmentToDesignsFragment())
+        }
+
         return binding.root
     }
 
@@ -55,11 +64,8 @@ class TryOnFragment : Fragment() {
     }
 
     private fun loadEmbroidery() {
-        val embroideryBitmap = BitmapFactory.decodeResource(resources, R.drawable.example_texture)
-
-        val embroideryMat = Mat(embroideryBitmap.height, embroideryBitmap.width, CvType.CV_8UC4)
-        Utils.bitmapToMat(embroideryBitmap, embroideryMat)
-        matrixRepository.updateEmbroideryMat(embroideryMat)
+        val bitmap = loadEmbroideryUseCase.invoke(requireContext())
+        binding.embroideryImageView.setImageBitmap(bitmap)
     }
 
     private fun startCamera() {
@@ -100,5 +106,13 @@ class TryOnFragment : Fragment() {
                 }
             }
         }
+
+        binding.takePictureButton.setOnClickListener {
+            takePicture()
+        }
+    }
+
+    private fun takePicture() = binding.cameraPreview.bitmap?.let { bitmap ->
+        viewModel.takePicture(requireContext().contentResolver, bitmap)
     }
 }

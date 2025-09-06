@@ -9,5 +9,14 @@
         android:id="@+id/tryOnFragment"
         android:name="ru.vsu.arembroidery.views.TryOnFragment"
         android:label="fragment_try_on"
-        tools:layout="@layout/fragment_try_on" />
+        tools:layout="@layout/fragment_try_on" >
+        <action
+            android:id="@+id/action_tryOnFragment_to_designsFragment"
+            app:destination="@id/designsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/designsFragment"
+        android:name="ru.vsu.arembroidery.views.DesignsFragment"
+        android:label="Select embroidery"
+        tools:layout="@layout/fragment_designs" />
 </navigation>
