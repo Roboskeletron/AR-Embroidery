@@ -15,6 +15,7 @@ import ru.vsu.arembroidery.usecases.LoadEmbroideryUseCase
 import ru.vsu.arembroidery.usecases.SelectEmbroideryUseCase
 import ru.vsu.arembroidery.usecases.TransformLandMarkUseCase
 import ru.vsu.arembroidery.viewmodels.DesignsFragmentVM
+import ru.vsu.arembroidery.viewmodels.PhotoReviewFragmentVM
 import ru.vsu.arembroidery.viewmodels.TryOnFragmentVM
 
 val appModule = module {
@@ -45,4 +46,5 @@ val appModule = module {
     single { LoadEmbroideryUseCase(get(), get()) }
     viewModelOf(::TryOnFragmentVM)
     viewModelOf(::DesignsFragmentVM)
+    viewModelOf(::PhotoReviewFragmentVM)
 }
