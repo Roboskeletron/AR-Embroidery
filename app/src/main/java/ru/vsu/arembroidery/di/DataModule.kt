@@ -9,15 +9,13 @@ import org.koin.dsl.module
 import ru.vsu.arembroidery.data.DesignPagingSource
 import ru.vsu.arembroidery.data.EmbroideryRepository
 import ru.vsu.arembroidery.data.MatrixRepository
-import ru.vsu.arembroidery.data.UserRepository
 import ru.vsu.arembroidery.utils.AuthManager
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "ru.vsu.arembroidery.preferences")
 
 val dataModule = module {
     single { MatrixRepository() }
-    single { AuthManager(androidContext().dataStore, get()) }
-    single { UserRepository(get()) }
+    single { AuthManager(androidContext(),androidContext().dataStore) }
     single { DesignPagingSource(get()) }
     single { EmbroideryRepository() }
 }

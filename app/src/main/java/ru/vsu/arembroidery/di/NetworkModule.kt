@@ -9,10 +9,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.vsu.arembroidery.BuildConfig
 import ru.vsu.arembroidery.network.ApiService
+import ru.vsu.arembroidery.network.AuthInterceptor
 import java.util.concurrent.TimeUnit
 
 val networkModule = module {
-    
     single<Gson> {
         GsonBuilder()
             .create()
@@ -27,9 +27,12 @@ val networkModule = module {
             }
         }
     }
+
+    single { AuthInterceptor(get()) }
     
     single<OkHttpClient> {
         OkHttpClient.Builder()
+            .addInterceptor(get<AuthInterceptor>())
             .addInterceptor(get<HttpLoggingInterceptor>())
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)

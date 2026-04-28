@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.2"
+appauth = "0.11.1"
 cameraCamera2 = "1.4.2"
 cameraCore = "1.4.2"
 cameraLifecycle = "1.4.2"
@@ -20,6 +21,7 @@ material = "1.13.0-alpha13"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 navigationUiKtx = "2.9.3"
+okhttp3Integration = "5.0.5"
 pagingRuntime = "3.3.6"
 passay = "1.6.6"
 poseDetection = "18.0.0-beta5"
@@ -50,6 +52,7 @@ androidx-navigation-ui = { module = "androidx.navigation:navigation-ui" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingRuntime" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+appauth = { module = "net.openid:appauth", version.ref = "appauth" }
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraLifecycle" }
@@ -67,6 +70,7 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 mlkit-pose-detection = { module = "com.google.mlkit:pose-detection", version.ref = "poseDetection" }
 mlkit-pose-detection-accurate = { module = "com.google.mlkit:pose-detection-accurate", version.ref = "poseDetectionAccurate" }
+okhttp3-integration = { module = "com.github.bumptech.glide:okhttp3-integration", version.ref = "okhttp3Integration" }
 passay = { module = "org.passay:passay", version.ref = "passay" }
 pose-detection = { module = "com.google.mlkit:pose-detection" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
