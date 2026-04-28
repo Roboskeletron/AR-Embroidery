@@ -18,8 +18,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "BASE_URL", "\"http://192.168.1.58:8080/\"")
+        buildConfigField("String", "BASE_URL", "\"https://api.embroidery-portal.usr0.ru/\"")
         buildConfigField("boolean", "SHOW_POSE_DEBUG_OVERLAY", "false")
+        buildConfigField("String", "KEYCLOAK_ISSUER_URI", "\"https://auth.embroidery-portal.usr0.ru/realms/portal-for-embroidery\"")
+        buildConfigField("String", "CLIENT_ID", "\"portal-for-embroidery-android\"")
+
+        manifestPlaceholders["appAuthRedirectScheme"] = "ru.vsu.arembroidery"
     }
 
     buildFeatures {
@@ -47,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.appauth)
 
     implementation(libs.insert.koin.koin.android)
 
@@ -62,7 +67,8 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
 
     implementation(libs.glide)
-    annotationProcessor(libs.compiler)
+    implementation(libs.okhttp3.integration)
+    kapt(libs.compiler)
 
     // Coroutines for async operations
     implementation(libs.kotlinx.coroutines.android)
