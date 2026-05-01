@@ -48,7 +48,7 @@ class DesignAdapter(
 
                     root.apply {
                         designImage.setOnClickListener {
-                            selectEmbroideryUseCase.invoke(context, designImage.drawable.toBitmap())
+                            selectEmbroideryUseCase.invoke(context, designImage.drawable.toBitmap(), designItem.id)
                             findNavController().navigateUp()
                         }
                     }

@@ -17,6 +17,9 @@ import ru.vsu.arembroidery.databinding.FragmentPhotoReviewBinding
 import ru.vsu.arembroidery.di.GlideApp
 import ru.vsu.arembroidery.viewmodels.PhotoReviewFragmentVM
 import androidx.core.net.toUri
+import org.koin.android.ext.android.inject
+import ru.vsu.arembroidery.data.EmbroideryRepository
+import kotlin.getValue
 
 class PhotoReviewFragment : Fragment() {
     private lateinit var binding : FragmentPhotoReviewBinding
@@ -24,6 +27,7 @@ class PhotoReviewFragment : Fragment() {
     private val args: PhotoReviewFragmentArgs by navArgs()
 
     private val viewModel by viewModel<PhotoReviewFragmentVM>()
+    private val embroideryRepository by inject<EmbroideryRepository>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,11 +75,18 @@ class PhotoReviewFragment : Fragment() {
     }
 
     private fun sharePhoto(uri: Uri) {
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "image/jpeg"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        lifecycleScope.launch {
+            val tags = embroideryRepository.getDesignTags().joinToString(" ") { (_, title) ->
+                "#$title"
+            }
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/jpeg"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_TEXT, tags)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share Photo"))
         }
-        startActivity(Intent.createChooser(shareIntent, "Share Photo"))
     }
 }
