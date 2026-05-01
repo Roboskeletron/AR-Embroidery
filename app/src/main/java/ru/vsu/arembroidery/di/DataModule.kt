@@ -17,5 +17,5 @@ val dataModule = module {
     single { MatrixRepository() }
     single { AuthManager(androidContext(),androidContext().dataStore) }
     single { DesignPagingSource(get()) }
-    single { EmbroideryRepository() }
+    single { EmbroideryRepository(androidContext().dataStore, get()) }
 }

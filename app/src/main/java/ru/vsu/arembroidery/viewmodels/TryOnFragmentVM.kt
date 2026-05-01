@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +15,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import ru.vsu.arembroidery.BuildConfig
 import ru.vsu.arembroidery.models.PoseAnalysisResult
@@ -44,6 +47,9 @@ class TryOnFragmentVM(
     private var alignmentOffsetX = 0.0
 
     private var overlays: List<Drawable> = listOf()
+
+    private val _photoCaptureEvent = Channel<Uri>()
+    val photoCaptureEvent = _photoCaptureEvent.receiveAsFlow()
 
     fun alignCenter(){
         embroideryOffsetX.value = 0f
@@ -102,6 +108,8 @@ class TryOnFragmentVM(
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, this)
                 close()
             }
+
+            _photoCaptureEvent.send(uri)
         }
     }
 

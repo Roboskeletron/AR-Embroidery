@@ -154,6 +154,52 @@
             </LinearLayout>
 
         </FrameLayout>
+
+        <com.google.android.material.floatingtoolbar.FloatingToolbarLayout
+            android:id="@+id/photo_saved_toolbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="120dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/photo_saved_toolbar_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/photo_thumbnail"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="Photo saved"
+                    android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+                <Button
+                    android:id="@+id/view_photo_button"
+                    style="?attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="View" />
+
+            </LinearLayout>
+
+        </com.google.android.material.floatingtoolbar.FloatingToolbarLayout>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

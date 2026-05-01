@@ -13,10 +13,22 @@
         <action
             android:id="@+id/action_tryOnFragment_to_designsFragment"
             app:destination="@id/designsFragment" />
+        <action
+            android:id="@+id/action_tryOnFragment_to_photoReviewFragment"
+            app:destination="@id/photoReviewFragment" />
     </fragment>
     <fragment
         android:id="@+id/designsFragment"
         android:name="ru.vsu.arembroidery.views.DesignsFragment"
         android:label="Select embroidery"
         tools:layout="@layout/fragment_designs" />
+    <fragment
+        android:id="@+id/photoReviewFragment"
+        android:name="ru.vsu.arembroidery.views.PhotoReviewFragment"
+        android:label=""
+        tools:layout="@layout/fragment_designs" >
+        <argument
+            android:name="photoUri"
+            app:argType="string" />
+    </fragment>
 </navigation>
